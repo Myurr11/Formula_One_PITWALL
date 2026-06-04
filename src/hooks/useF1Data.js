@@ -224,13 +224,10 @@ async function fetchLastResult() {
 }
 
 // ─── CALENDAR via Ergast ──────────────────────────────────────────────────────
-async function fetchCalendar(roundsComplete) {
-  const year = new Date().getFullYear();
-  const eg   = await safeGet(`${ERGAST}/current.json`);
+async function fetchCalendar(roundsComplete) { // eslint-disable-line no-unused-vars
+  const eg    = await safeGet(`${ERGAST}/current.json`);
   const races = eg?.MRData?.RaceTable?.Races;
   if (!races) return null;
-
-  const now = new Date();
   const winnerData = await safeGet(`${ERGAST}/current/results/1.json`);
   const winnerMap = {};
   (winnerData?.MRData?.RaceTable?.Races || []).forEach(r => {
@@ -242,27 +239,26 @@ async function fetchCalendar(roundsComplete) {
     };
   });
 
-  let foundNext = false;
+  // Status is intentionally omitted here — Calendar component derives it
+  // from actual raceDate vs now, which is always correct regardless of API quirks.
   return races.map(r => {
-    const raceDate  = new Date(`${r.date}T${r.time || '13:00:00Z'}`);
-    const roundNum  = Number(r.round);
-    const isDone    = roundNum <= (roundsComplete || 0);
-    const isNext    = !isDone && !foundNext && (foundNext = true);
-    const winner    = winnerMap[roundNum];
+    const roundNum = Number(r.round);
+    const winner   = winnerMap[roundNum];
+    const raceDateStr = `${r.date}T${r.time || '13:00:00Z'}`;
 
     return {
-      round:      roundNum,
-      name:       r.raceName,
-      shortName:  r.raceName.replace(' Grand Prix', ' GP'),
-      circuit:    r.Circuit?.circuitName || '',
-      country:    r.Circuit?.Location?.country || '',
-      date:       r.date,
-      raceDate:   `${r.date}T${r.time || '13:00:00Z'}`,
-      winner:     winner?.name || null,
-      winnerTeam: winner?.team || null,
-      winnerColor:winner?.color || null,
-      status:     isDone ? 'done' : isNext ? 'next' : 'upcoming',
-      isSprint:   !!(r.SprintQualifying || r.Sprint),
+      round:       roundNum,
+      name:        r.raceName,
+      shortName:   r.raceName.replace(' Grand Prix', ' GP'),
+      circuit:     r.Circuit?.circuitName || '',
+      country:     r.Circuit?.Location?.country || '',
+      date:        r.date,
+      raceDate:    raceDateStr,
+      winner:      winner?.name || null,
+      winnerTeam:  winner?.team || null,
+      winnerColor: winner?.color || null,
+      // No status field — Calendar.js deriveStatus() computes it correctly
+      isSprint:    !!(r.SprintQualifying || r.Sprint),
     };
   });
 }

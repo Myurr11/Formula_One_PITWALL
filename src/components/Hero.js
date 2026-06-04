@@ -122,7 +122,7 @@ const Hero = ({ nextRace, standings }) => {
         </div>
       </div>
 
-      <div className="hero-title-bg">Shreya's<br /><span>Pit Wall.</span></div>
+      <div className="hero-title-bg">The<br /><span>Pit Wall.</span></div>
     </section>
   );
 };

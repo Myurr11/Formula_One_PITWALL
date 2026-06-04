@@ -47,7 +47,7 @@ const PaddockIntel = ({ paddock, lastResult }) => {
           <div className="intel-feed">
             <div className="section-header" style={{ marginBottom:'2rem', borderBottom:'1px solid rgba(255,255,255,0.07)', paddingBottom:'1.5rem' }}>
               <h2 className="section-title">Paddock <span>Intel</span></h2>
-              <span className="section-meta">AUTO-UPDATED · AI POWERED</span>
+              <span className="section-meta">Stay Up To Date</span>
             </div>
             <div className="intel-list">
               {news.length === 0 && (

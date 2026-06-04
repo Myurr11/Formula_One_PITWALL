@@ -1,6 +1,39 @@
 import React, { useState } from 'react';
 import './Calendar.css';
 
+const RAW = 'https://raw.githubusercontent.com/julesr0y/f1-circuits-svg/main/circuits';
+
+// Map race name keywords → exact SVG filenames in the repo
+const CIRCUIT_SVG = {
+  'Australian':   `${RAW}/albert-park.svg`,
+  'Chinese':      `${RAW}/shanghai.svg`,
+  'Japanese':     `${RAW}/suzuka.svg`,
+  'Miami':        `${RAW}/miami.svg`,
+  'Canadian':     `${RAW}/gilles-villeneuve.svg`,
+  'Monaco':       `${RAW}/monaco.svg`,
+  'Spanish':      `${RAW}/catalunya.svg`,
+  'Austrian':     `${RAW}/red-bull-ring.svg`,
+  'British':      `${RAW}/silverstone.svg`,
+  'Belgian':      `${RAW}/spa-francorchamps.svg`,
+  'Hungarian':    `${RAW}/hungaroring.svg`,
+  'Dutch':        `${RAW}/zandvoort.svg`,
+  'Italian':      `${RAW}/monza.svg`,
+  'Madrid':       `${RAW}/madrid.svg`,
+  'Azerbaijan':   `${RAW}/baku.svg`,
+  'Singapore':    `${RAW}/marina-bay.svg`,
+  'United States':`${RAW}/circuit-of-the-americas.svg`,
+  'Mexico':       `${RAW}/hermanos-rodriguez.svg`,
+  'Brazilian':    `${RAW}/interlagos.svg`,
+  'Las Vegas':    `${RAW}/las-vegas.svg`,
+  'Qatar':        `${RAW}/lusail.svg`,
+  'Abu Dhabi':    `${RAW}/yas-marina.svg`,
+};
+
+const getSvgUrl = (name = '') => {
+  const key = Object.keys(CIRCUIT_SVG).find(k => name.includes(k));
+  return key ? CIRCUIT_SVG[key] : null;
+};
+
 const flagMap = {
   AU:'🇦🇺', CN:'🇨🇳', JP:'🇯🇵', BH:'🇧🇭', SA:'🇸🇦', US:'🇺🇸',
   MC:'🇲🇨', ES:'🇪🇸', CA:'🇨🇦', AT:'🇦🇹', GB:'🇬🇧', BE:'🇧🇪',
@@ -8,11 +41,58 @@ const flagMap = {
   BR:'🇧🇷', QA:'🇶🇦', AE:'🇦🇪',
 };
 
+// Derive status entirely from raceDate vs now — never trust API's status field
+const deriveStatus = (races) => {
+  const now = new Date();
+  let nextAssigned = false;
+  return races.map(race => {
+    const rd = new Date(race.raceDate || race.date);
+    const inPast = rd < now;
+    // A race is "done" only if it's in the past AND has a winner OR well past (>2h after race start)
+    const isDone = inPast && (race.winner || (now - rd) > 2 * 60 * 60 * 1000);
+    if (isDone) return { ...race, status: 'done' };
+    if (!nextAssigned) { nextAssigned = true; return { ...race, status: 'next' }; }
+    return { ...race, status: 'upcoming' };
+  });
+};
+
+// Round up to nearest multiple of COLS to avoid orphan gaps
+const COLS = 7;
+const padToFullRow = (arr) => {
+  const rem = arr.length % COLS;
+  if (rem === 0) return arr;
+  return [...arr, ...Array(COLS - rem).fill(null)];
+};
+
+const CircuitImg = ({ name }) => {
+  const [failed, setFailed] = React.useState(false);
+  const url = getSvgUrl(name);
+  if (!url || failed) return null;
+  return (
+    <div className="circuit-svg-wrap">
+      <img
+        src={url}
+        alt={name}
+        className="circuit-svg"
+        onError={() => setFailed(true)}
+      />
+    </div>
+  );
+};
+
 const Calendar = ({ calendar }) => {
   const [showAll, setShowAll] = useState(false);
-  const races = calendar?.races || [];
-  const displayed = showAll ? races : races.slice(0, 10);
-  const total = races.length;
+
+  const rawRaces = calendar?.races || [];
+  // Re-derive statuses correctly from actual dates
+  const races = deriveStatus(rawRaces);
+  const total  = races.length;
+
+  // Show enough races to fill complete rows — at minimum the first 2 rows (14 cards)
+  const minShow = COLS * 2; // 14
+  const baseCount = showAll ? total : minShow;
+  // Pad to full grid row so no orphan empty cells
+  const displayed = padToFullRow(races.slice(0, baseCount));
 
   return (
     <section className="calendar-section" id="schedule">
@@ -23,42 +103,59 @@ const Calendar = ({ calendar }) => {
         </div>
 
         <div className="calendar-grid">
-          {displayed.map((race) => (
-            <div key={race.round} className={`race-card ${race.status}`}>
-              <div className="race-card-top">
-                <span className="race-round">R{String(race.round).padStart(2,'0')}</span>
-                <div className="race-card-badges">
-                  {race.isSprint && <span className="sprint-badge">S</span>}
-                  <span className="race-flag">{flagMap[race.country] || '🏁'}</span>
+          {displayed.map((race, idx) =>
+            race === null ? (
+              // Invisible filler — keeps grid alignment without visible gap
+              <div key={`filler-${idx}`} className="race-card filler" aria-hidden="true" />
+            ) : (
+              <div key={race.round} className={`race-card ${race.status}`}>
+                {/* Circuit layout background */}
+                <CircuitImg name={race.name || race.shortName || ''} />
+
+                <div className="race-card-content">
+                  <div className="race-card-top">
+                    <span className="race-round">R{String(race.round).padStart(2,'0')}</span>
+                    <div className="race-card-badges">
+                      {race.isSprint && <span className="sprint-badge">S</span>}
+                      <span className="race-flag">{flagMap[race.country] || '🏁'}</span>
+                    </div>
+                    {race.status === 'next' && <span className="next-indicator">NEXT</span>}
+                    {race.status === 'done'  && <span className="done-indicator">✓</span>}
+                  </div>
+
+                  <div className="race-card-body">
+                    <h3 className="race-name">{race.shortName || race.name}</h3>
+                    <p className="race-circuit-name">{race.circuit}</p>
+                    <p className="race-date">{race.raceDate ? race.raceDate.slice(0,10) : race.date}</p>
+                  </div>
+
+                  {race.winner ? (
+                    <div className="race-winner">
+                      <span className="winner-label">WINNER</span>
+                      <span className="winner-name" style={{ color: race.winnerColor || '#fff' }}>
+                        {race.winner}
+                      </span>
+                    </div>
+                  ) : race.status === 'next' ? (
+                    <div className="race-winner next-race-cta">
+                      <span className="winner-label">STATUS</span>
+                      <span className="winner-name" style={{color:'var(--red)'}}>UPCOMING ▶</span>
+                    </div>
+                  ) : null}
                 </div>
-                {race.status === 'next' && <span className="next-indicator">NEXT</span>}
-                {race.status === 'done' && <span className="done-indicator">✓</span>}
               </div>
-              <div className="race-card-body">
-                <h3 className="race-name">{race.shortName || race.name}</h3>
-                <p className="race-circuit-name">{race.circuit}</p>
-                <p className="race-date">{race.date}</p>
-              </div>
-              {race.winner ? (
-                <div className="race-winner">
-                  <span className="winner-label">WINNER</span>
-                  <span className="winner-name" style={{ color: race.winnerColor || '#fff' }}>
-                    {race.winner}
-                  </span>
-                </div>
-              ) : race.status === 'next' ? (
-                <div className="race-winner next-race-cta">
-                  <span className="winner-label">STATUS</span>
-                  <span className="winner-name" style={{color:'var(--red)'}}>UPCOMING ▶</span>
-                </div>
-              ) : null}
-            </div>
-          ))}
+            )
+          )}
         </div>
 
-        {!showAll && total > 10 && (
+        {!showAll && total > minShow && (
           <button className="show-more-btn" onClick={() => setShowAll(true)}>
-            SHOW ALL {total} RACES
+            SHOW ALL {total} RACES ↓
+          </button>
+        )}
+        {showAll && (
+          <button className="show-more-btn" onClick={() => setShowAll(false)}>
+            SHOW LESS ↑
           </button>
         )}
       </div>

@@ -1,0 +1,198 @@
+.calendar-section {
+  padding: 6rem 2rem;
+  background: var(--bg);
+}
+
+.section-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  padding-bottom: 1.5rem;
+}
+
+.section-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  color: #fff;
+  margin: 0;
+  letter-spacing: 1px;
+}
+
+.section-title span { color: var(--red); }
+
+.section-meta {
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.race-card {
+  background: rgba(12,12,12,1);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: background 0.2s;
+  position: relative;
+  min-height: 160px;
+}
+
+.race-card:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.race-card.done {
+  opacity: 0.6;
+}
+
+.race-card.next {
+  background: rgba(232,0,45,0.05);
+  opacity: 1;
+}
+
+.race-card.next::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--red);
+}
+
+.race-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.race-round {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 1px;
+}
+
+.race-flag { font-size: 1.1rem; }
+
+.next-indicator {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: var(--red);
+  border: 1px solid var(--red);
+  padding: 0.1rem 0.35rem;
+  animation: pulse-text 2s infinite;
+}
+
+.done-indicator {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.2);
+}
+
+.race-card-body { flex: 1; }
+
+.race-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.5px;
+  line-height: 1.1;
+}
+
+.race-card.next .race-name { color: #fff; }
+
+.race-circuit-name {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  margin: 0 0 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.race-date {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.race-winner {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.winner-label {
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.25);
+}
+
+.winner-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 1px;
+}
+
+.next-race-cta .winner-name { font-size: 0.75rem; }
+
+.show-more-btn {
+  display: block;
+  margin: 2rem auto 0;
+  background: none;
+  border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.5);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 3px;
+  padding: 0.75rem 2rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.show-more-btn:hover {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+@media (max-width: 600px) {
+  .calendar-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.race-card-badges {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sprint-badge {
+  font-size: 0.5rem;
+  letter-spacing: 1px;
+  color: #FF8000;
+  border: 1px solid #FF8000;
+  padding: 0.1rem 0.3rem;
+  font-family: 'Bebas Neue', sans-serif;
+}

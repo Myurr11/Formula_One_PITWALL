@@ -1,0 +1,150 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  padding: 0 2rem;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background: transparent;
+  transition: background 0.3s ease, backdrop-filter 0.3s ease;
+}
+
+.navbar.scrolled {
+  background: rgba(8, 8, 8, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.nav-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.logo-flag { font-size: 0.7rem; letter-spacing: -2px; }
+
+.logo-text {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: 1.5rem;
+  letter-spacing: 3px;
+  color: #fff;
+}
+
+.logo-accent { color: var(--red); }
+
+.logo-edition {
+  font-size: 0.55rem;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  align-self: center;
+  margin-left: 0.25rem;
+}
+
+.nav-links {
+  display: flex;
+  gap: 0.25rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  padding: 0.4rem 0.75rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0.75rem;
+  right: 0.75rem;
+  height: 2px;
+  background: var(--red);
+  transform: scaleX(0);
+  transition: transform 0.2s;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: #fff;
+}
+
+.nav-link.active::after,
+.nav-link:hover::after {
+  transform: scaleX(1);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.live-badge {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: var(--red);
+  text-transform: uppercase;
+  animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.hamburger span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: #fff;
+}
+
+@media (max-width: 768px) {
+  .hamburger { display: flex; }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background: rgba(8,8,8,0.98);
+    flex-direction: column;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-links.open { display: flex; }
+  .logo-edition { display: none; }
+}

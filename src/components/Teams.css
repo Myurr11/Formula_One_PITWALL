@@ -1,0 +1,237 @@
+.teams-section {
+  padding: 6rem 2rem;
+  background: #0a0a0a;
+}
+
+.teams-layout {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 2px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* TEAM LIST */
+.team-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(8,8,8,1);
+}
+
+.team-btn {
+  display: grid;
+  grid-template-columns: 4px 1fr auto;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-align: left;
+}
+
+.team-btn:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.team-btn.active {
+  background: rgba(255,255,255,0.05);
+  border-left: 2px solid var(--team-color);
+}
+
+.team-btn-color {
+  width: 4px;
+  height: 28px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  opacity: 0.5;
+}
+
+.team-btn.active .team-btn-color {
+  opacity: 1;
+}
+
+.team-btn-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+}
+
+.team-btn.active .team-btn-name {
+  color: #fff;
+}
+
+.team-btn-pts {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 1px;
+}
+
+/* TEAM DETAIL */
+.team-detail {
+  background: rgba(12,12,12,1);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.team-detail-header {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.team-color-stripe {
+  width: 4px;
+  height: 48px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.team-full-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  color: #fff;
+  margin: 0 0 0.25rem;
+  letter-spacing: 1px;
+}
+
+.team-chassis {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.team-pts-badge {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.tpb-pts {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  color: var(--team-color);
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.tpb-label {
+  font-size: 0.55rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 2px;
+}
+
+.team-desc {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.45);
+  line-height: 1.7;
+  margin: 0;
+  border-left: 2px solid rgba(255,255,255,0.07);
+  padding-left: 1rem;
+}
+
+.team-stats-row {
+  display: flex;
+  gap: 2rem;
+  padding: 1.25rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  flex-wrap: wrap;
+}
+
+.team-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ts-label {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+
+.ts-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+
+/* DRIVERS */
+.team-drivers {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.td-label {
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+
+.td-list {
+  display: flex;
+  gap: 1rem;
+}
+
+.td-card {
+  flex: 1;
+  padding: 1rem 1.25rem;
+  background: rgba(255,255,255,0.02);
+  border-top: 2px solid var(--team-color, #fff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.td-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.25);
+  letter-spacing: 1px;
+}
+
+.td-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.2rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .teams-layout {
+    grid-template-columns: 1fr;
+  }
+  .team-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .team-btn {
+    grid-template-columns: 1fr;
+    padding: 0.75rem;
+    text-align: center;
+    justify-items: center;
+  }
+  .team-btn-color { display: none; }
+  .td-list { flex-direction: column; }
+}
+
+.td-pts {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  margin-top: 0.15rem;
+}

@@ -1,0 +1,61 @@
+.live-status {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.9rem 0.4rem 0.65rem;
+  background: rgba(8,8,8,0.92);
+  border: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(8px);
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+.ls-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.ls-green  .ls-dot  { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+.ls-yellow .ls-dot  { background: #ffcc00; box-shadow: 0 0 6px #ffcc00; }
+.ls-red    .ls-dot  { background: var(--red); }
+.ls-grey   .ls-dot  { background: rgba(255,255,255,0.25); }
+
+.ls-pulse { animation: ls-blink 1.4s ease-in-out infinite; }
+@keyframes ls-blink {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.3; transform:scale(0.7); }
+}
+
+.ls-label { color: rgba(255,255,255,0.7); font-weight:500; }
+.ls-green  .ls-label { color:#00ff88; }
+.ls-yellow .ls-label { color:#ffcc00; }
+.ls-red    .ls-label { color:var(--red); }
+
+.ls-time { color: rgba(255,255,255,0.3); }
+
+.ls-free-badge {
+  background: rgba(0,255,136,0.12);
+  color: #00ff88;
+  border: 1px solid rgba(0,255,136,0.3);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.5rem;
+  letter-spacing: 1px;
+}
+
+.ls-refresh {
+  background: none; border: none;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.2rem;
+  transition: color 0.2s, transform 0.2s;
+}
+.ls-refresh:hover { color:#fff; }
+.ls-refresh.spinning { animation: spin 0.7s linear infinite; color:#ffcc00; }
+
+@keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }

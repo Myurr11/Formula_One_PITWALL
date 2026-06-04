@@ -1,0 +1,249 @@
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  padding: 80px 2rem 4rem;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(232,0,45,0.12) 0%, transparent 65%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.hero-header {
+  margin-bottom: 3rem;
+}
+
+.hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.round-badge {
+  background: var(--red);
+  color: #fff;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  padding: 0.2rem 0.6rem;
+}
+
+.up-next-badge {
+  color: var(--red);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  border: 1px solid var(--red);
+  padding: 0.2rem 0.6rem;
+}
+
+.country-tag {
+  color: rgba(255,255,255,0.4);
+  font-size: 0.7rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.race-title {
+  font-family: 'Bebas Neue', 'Impact', sans-serif;
+  font-size: clamp(3.5rem, 9vw, 8rem);
+  line-height: 0.9;
+  color: #fff;
+  margin: 0 0 0.75rem;
+  letter-spacing: -1px;
+}
+
+.race-title-accent { color: var(--red); }
+
+.race-circuit {
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.circuit-detail { color: rgba(255,255,255,0.3); }
+
+/* COUNTDOWN */
+.countdown-block {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.5rem 2rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.countdown-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--red);
+}
+
+.countdown-label {
+  font-size: 0.6rem;
+  letter-spacing: 4px;
+  color: var(--red);
+  text-transform: uppercase;
+}
+
+.countdown-units {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.flip-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.flip-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.5rem 0.75rem;
+  min-width: 64px;
+  text-align: center;
+}
+
+.flip-value {
+  font-family: 'Bebas Neue', monospace, sans-serif;
+  font-size: 2.8rem;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: 4px;
+}
+
+.flip-label {
+  font-size: 0.55rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+}
+
+.colon {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  color: var(--red);
+  padding-bottom: 1.2rem;
+  opacity: 0.7;
+}
+
+/* RACE STATS */
+.race-stats {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  max-width: 520px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0 1.5rem 0 0;
+}
+
+.stat-item:first-child { padding-left: 0; }
+
+.stat-divider {
+  width: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 0 1.5rem 0 0;
+}
+
+.stat-label {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.3rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.stat-sub {
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.4);
+}
+
+/* BIG BACKGROUND TEXT */
+.hero-title-bg {
+  position: absolute;
+  top: 50%;
+  right: -2%;
+  transform: translateY(-50%);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(6rem, 18vw, 18rem);
+  line-height: 0.85;
+  color: rgba(255,255,255,0.025);
+  pointer-events: none;
+  z-index: 1;
+  text-align: right;
+  user-select: none;
+}
+
+.hero-title-bg span { color: rgba(232,0,45,0.04); }
+
+@media (max-width: 768px) {
+  .hero { padding: 100px 1.25rem 3rem; }
+  .race-stats { flex-wrap: wrap; gap: 1rem; }
+  .stat-divider { display: none; }
+  .stat-item { padding: 0; }
+  .flip-value { font-size: 2rem; }
+  .flip-card { min-width: 50px; padding: 0.4rem 0.5rem; }
+  .hero-title-bg { display: none; }
+}
+
+.race-date-line {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 0.35rem;
+}

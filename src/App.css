@@ -1,0 +1,17 @@
+.app {
+  min-height: 100vh;
+  background: var(--bg);
+}
+.status-bar {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 999;
+}
+
+@media (max-width: 600px) {
+  .status-bar {
+    bottom: 0.75rem;
+    right: 0.75rem;
+  }
+}

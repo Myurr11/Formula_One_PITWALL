@@ -1,32 +1,33 @@
 import React, { useState } from 'react';
 import './Calendar.css';
 
-const RAW = 'https://raw.githubusercontent.com/julesr0y/f1-circuits-svg/main/circuits';
+// Verified URLs — layout IDs from circuits.json, path confirmed 200 OK
+// Pattern: circuits/minimal/white-outline/{layoutId}.svg
+const BASE = 'https://raw.githubusercontent.com/julesr0y/f1-circuits-svg/main/circuits/minimal/white-outline';
 
-// Map race name keywords → exact SVG filenames in the repo
 const CIRCUIT_SVG = {
-  'Australian':   `${RAW}/albert-park.svg`,
-  'Chinese':      `${RAW}/shanghai.svg`,
-  'Japanese':     `${RAW}/suzuka.svg`,
-  'Miami':        `${RAW}/miami.svg`,
-  'Canadian':     `${RAW}/gilles-villeneuve.svg`,
-  'Monaco':       `${RAW}/monaco.svg`,
-  'Spanish':      `${RAW}/catalunya.svg`,
-  'Austrian':     `${RAW}/red-bull-ring.svg`,
-  'British':      `${RAW}/silverstone.svg`,
-  'Belgian':      `${RAW}/spa-francorchamps.svg`,
-  'Hungarian':    `${RAW}/hungaroring.svg`,
-  'Dutch':        `${RAW}/zandvoort.svg`,
-  'Italian':      `${RAW}/monza.svg`,
-  'Madrid':       `${RAW}/madrid.svg`,
-  'Azerbaijan':   `${RAW}/baku.svg`,
-  'Singapore':    `${RAW}/marina-bay.svg`,
-  'United States':`${RAW}/circuit-of-the-americas.svg`,
-  'Mexico':       `${RAW}/hermanos-rodriguez.svg`,
-  'Brazilian':    `${RAW}/interlagos.svg`,
-  'Las Vegas':    `${RAW}/las-vegas.svg`,
-  'Qatar':        `${RAW}/lusail.svg`,
-  'Abu Dhabi':    `${RAW}/yas-marina.svg`,
+  'Australian':    `${BASE}/melbourne-2.svg`,
+  'Chinese':       `${BASE}/shanghai-1.svg`,
+  'Japanese':      `${BASE}/suzuka-2.svg`,
+  'Miami':         `${BASE}/miami-1.svg`,
+  'Canadian':      `${BASE}/montreal-6.svg`,
+  'Monaco':        `${BASE}/monaco-6.svg`,
+  'Spanish':       `${BASE}/catalunya-6.svg`,
+  'Austrian':      `${BASE}/spielberg-3.svg`,
+  'British':       `${BASE}/silverstone-8.svg`,
+  'Belgian':       `${BASE}/spa-francorchamps-4.svg`,
+  'Hungarian':     `${BASE}/hungaroring-3.svg`,
+  'Dutch':         `${BASE}/zandvoort-5.svg`,
+  'Italian':       `${BASE}/monza-7.svg`,
+  'Madrid':        `${BASE}/madring-1.svg`,
+  'Azerbaijan':    `${BASE}/baku-1.svg`,
+  'Singapore':     `${BASE}/marina-bay-4.svg`,
+  'United States': `${BASE}/austin-1.svg`,
+  'Mexico':        `${BASE}/mexico-city-3.svg`,
+  'Brazilian':     `${BASE}/interlagos-2.svg`,
+  'Las Vegas':     `${BASE}/las-vegas-1.svg`,
+  'Qatar':         `${BASE}/lusail-1.svg`,
+  'Abu Dhabi':     `${BASE}/yas-marina-2.svg`,
 };
 
 const getSvgUrl = (name = '') => {

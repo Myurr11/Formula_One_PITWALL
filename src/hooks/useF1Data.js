@@ -8,29 +8,25 @@ import {
   paddockIntel as fbPaddock,
 } from '../data/f1Data';
 
-// ─── FREE API ENDPOINTS (no keys, no cost) ────────────────────────────────────
-const OPENF1   = 'https://api.openf1.org/v1';
-const F1API    = 'https://f1api.dev/api';
-const ERGAST   = 'https://api.jolpi.ca/ergast/f1';
+const OPENF1  = 'https://api.openf1.org/v1';
+const F1API   = 'https://f1api.dev/api';
+const ERGAST  = 'https://api.jolpi.ca/ergast/f1';
 
 const TEAM_COLORS = {
-  mercedes: '#00D2BE', ferrari: '#E8002D', mclaren: '#FF8000',
-  'red bull': '#3671C6', 'red bull racing': '#3671C6', alpine: '#0093CC',
-  'racing bulls': '#6692FF', haas: '#B6BABD', williams: '#00A3E0',
-  'aston martin': '#006F62', audi: '#C0C0C0', cadillac: '#D4AF37',
-  sauber: '#C0C0C0',
+  mercedes:'#00D2BE', ferrari:'#E8002D', mclaren:'#FF8000',
+  'red bull':'#3671C6','red bull racing':'#3671C6', alpine:'#0093CC',
+  'racing bulls':'#6692FF', haas:'#B6BABD', williams:'#00A3E0',
+  'aston martin':'#006F62', audi:'#C0C0C0', cadillac:'#D4AF37', sauber:'#C0C0C0',
 };
-
-const getColor = (team = '') =>
+const getColor = (team='') =>
   TEAM_COLORS[team.toLowerCase()] ||
-  Object.entries(TEAM_COLORS).find(([k]) => team.toLowerCase().includes(k))?.[1] ||
-  '#888888';
+  Object.entries(TEAM_COLORS).find(([k])=>team.toLowerCase().includes(k))?.[1] || '#888888';
 
 const NAT_MAP = {
-  British:'GBR', Italian:'ITA', Dutch:'NED', Monegasque:'MON', Australian:'AUS',
-  French:'FRA', Spanish:'ESP', Canadian:'CAN', German:'GER', Thai:'THA',
-  Brazilian:'BRA', Argentine:'ARG', 'New Zealander':'NZL', Finnish:'FIN',
-  Mexican:'MEX', American:'USA', Japanese:'JPN', Chinese:'CHN',
+  British:'GBR',Italian:'ITA',Dutch:'NED',Monegasque:'MON',Australian:'AUS',
+  French:'FRA',Spanish:'ESP',Canadian:'CAN',German:'GER',Thai:'THA',
+  Brazilian:'BRA',Argentine:'ARG','New Zealander':'NZL',Finnish:'FIN',
+  Mexican:'MEX',American:'USA',Japanese:'JPN',Chinese:'CHN',
 };
 
 async function safeGet(url) {
@@ -41,11 +37,10 @@ async function safeGet(url) {
   } catch { return null; }
 }
 
-// ─── STANDINGS via f1api.dev (primary) + Ergast (fallback) ───────────────────
+// ─── STANDINGS ────────────────────────────────────────────────────────────────
 async function fetchStandings() {
   const year = new Date().getFullYear();
 
-  // Try f1api.dev first
   let driverData = await safeGet(`${F1API}/${year}/drivers-championship`);
   let ctorData   = await safeGet(`${F1API}/${year}/constructors-championship`);
 
@@ -55,7 +50,7 @@ async function fetchStandings() {
       name:  `${d.driver?.name?.split(' ')[0]?.[0] || ''}. ${d.driver?.surname || d.driver?.name || ''}`.trim(),
       short: (d.driver?.surname || '').slice(0, 3).toUpperCase(),
       team:  d.team?.teamName || d.team?.name || '',
-      nat:   d.driver?.nationality ? (NAT_MAP[d.driver.nationality] || d.driver.nationality.slice(0, 3).toUpperCase()) : '—',
+      nat:   d.driver?.nationality ? (NAT_MAP[d.driver.nationality] || d.driver.nationality.slice(0,3).toUpperCase()) : '—',
       pts:   Number(d.points) || 0,
       diff:  i === 0 ? null : -(Number(driverData.drivers_championship[0].points) - Number(d.points)),
       color: getColor(d.team?.teamName || d.team?.name || ''),
@@ -76,7 +71,6 @@ async function fetchStandings() {
   const eg = await safeGet(`${ERGAST}/current/driverStandings.json`);
   const ec = await safeGet(`${ERGAST}/current/constructorStandings.json`);
   if (!eg) return null;
-
   const sl = eg.MRData?.StandingsTable?.StandingsLists?.[0];
   const cl = ec?.MRData?.StandingsTable?.StandingsLists?.[0];
   const roundsComplete = Number(sl?.round) || 0;
@@ -85,9 +79,9 @@ async function fetchStandings() {
     return {
       pos:  Number(d.position),
       name: `${d.Driver.givenName[0]}. ${d.Driver.familyName}`,
-      short: d.Driver.code || d.Driver.familyName.slice(0, 3).toUpperCase(),
+      short: d.Driver.code || d.Driver.familyName.slice(0,3).toUpperCase(),
       team,
-      nat:  d.Driver.nationality ? (NAT_MAP[d.Driver.nationality] || d.Driver.nationality.slice(0,3).toUpperCase()) : '—',
+      nat:  NAT_MAP[d.Driver.nationality] || d.Driver.nationality?.slice(0,3).toUpperCase() || '—',
       pts:  Number(d.points),
       diff: i === 0 ? null : -(Number(sl.DriverStandings[0].points) - Number(d.points)),
       color: getColor(team),
@@ -103,73 +97,67 @@ async function fetchStandings() {
   return { drivers, constructors, roundsComplete, source: 'ergast' };
 }
 
-// ─── NEXT RACE via OpenF1 meetings + Ergast schedule ─────────────────────────
+// ─── NEXT RACE — Ergast for round number, OpenF1 for session times ─────────────
 async function fetchNextRace() {
   const year = new Date().getFullYear();
-  const now  = new Date();
 
-  // Get all meetings this year from OpenF1
+  // Ergast /current/next is authoritative for round number & race identity
+  const eg   = await safeGet(`${ERGAST}/current/next.json`);
+  const race  = eg?.MRData?.RaceTable?.Races?.[0];
+  if (!race) return null;
+
+  const raceDateStr = `${race.date}T${race.time || '14:00:00Z'}`;
+  let sessionDates  = { race: raceDateStr };
+  let isSprint      = false;
+
+  // Try to enrich with precise session times from OpenF1
   const meetings = await safeGet(`${OPENF1}/meetings?year=${year}`);
   if (meetings && Array.isArray(meetings)) {
-    const upcoming = meetings
-      .filter(m => new Date(m.date_start) > now)
-      .sort((a, b) => new Date(a.date_start) - new Date(b.date_start));
-    if (upcoming.length > 0) {
-      const m = upcoming[0];
-      // Get sessions for this meeting
-      const sessions = await safeGet(`${OPENF1}/sessions?meeting_key=${m.meeting_key}&year=${year}`);
-      const raceSession = sessions?.find(s => s.session_type === 'Race');
-      const qualSession = sessions?.find(s => s.session_type === 'Qualifying');
-      const fp1Session  = sessions?.find(s => s.session_type === 'Practice 1');
-      const sprintSession = sessions?.find(s => s.session_type === 'Sprint');
-
-      return {
-        name:         m.meeting_name,
-        circuit:      m.circuit_short_name || m.location,
-        location:     `${m.location}, ${m.country_name}`,
-        country:      m.country_code,
-        round:        m.meeting_key,
-        totalRounds:  22,
-        raceDate:     raceSession?.date_start || m.date_start,
-        sessionDates: {
-          fp1:        fp1Session?.date_start || null,
-          qualifying: qualSession?.date_start || null,
-          sprint:     sprintSession?.date_start || null,
-          race:       raceSession?.date_start || m.date_start,
-        },
-        isSprint:     !!sprintSession,
-        laps:         null,
-        circuitLength: null,
-        lapRecord:    null,
-        poleRecord:   null,
-        source:       'openf1',
-      };
+    const loc     = race.Circuit?.Location?.locality?.toLowerCase() || '';
+    const country = race.Circuit?.Location?.country?.toLowerCase() || '';
+    const matched = meetings.find(m => {
+      const mLoc  = (m.location || '').toLowerCase();
+      const mName = (m.meeting_name || '').toLowerCase();
+      return mLoc.includes(loc) || loc.includes(mLoc) ||
+             mName.includes(country) || country.includes(mLoc);
+    });
+    if (matched) {
+      const sessions = await safeGet(`${OPENF1}/sessions?meeting_key=${matched.meeting_key}&year=${year}`);
+      if (sessions && Array.isArray(sessions)) {
+        const get = (type) => sessions.find(s => s.session_type === type)?.date_start || null;
+        isSprint = !!sessions.find(s => s.session_type === 'Sprint');
+        sessionDates = {
+          fp1:        get('Practice 1'),
+          fp2:        get('Practice 2'),
+          fp3:        get('Practice 3'),
+          qualifying: get('Qualifying'),
+          sprint:     get('Sprint'),
+          race:       get('Race') || raceDateStr,
+        };
+      }
     }
   }
 
-  // Ergast fallback
-  const eg = await safeGet(`${ERGAST}/current/next.json`);
-  const race = eg?.MRData?.RaceTable?.Races?.[0];
-  if (!race) return null;
-  const raceDate = `${race.date}T${race.time || '13:00:00Z'}`;
   return {
-    name:         race.raceName,
-    circuit:      race.Circuit?.circuitName || '',
-    location:     `${race.Circuit?.Location?.locality || ''}, ${race.Circuit?.Location?.country || ''}`,
-    country:      null,
-    round:        Number(race.round),
-    totalRounds:  22,
-    raceDate,
-    sessionDates: { race: raceDate },
-    isSprint:     false,
-    source:       'ergast',
+    name:          race.raceName,
+    circuit:       race.Circuit?.circuitName || '',
+    location:      `${race.Circuit?.Location?.locality || ''}, ${race.Circuit?.Location?.country || ''}`,
+    country:       race.Circuit?.Location?.country || '',
+    round:         Number(race.round),   // ← always correct — from Ergast, not OpenF1 meeting_key
+    totalRounds:   22,
+    raceDate:      sessionDates.race || raceDateStr,
+    sessionDates,
+    isSprint,
+    lapRecord:     null,
+    poleRecord:    null,
+    source:        'ergast+openf1',
   };
 }
 
-// ─── LAST RESULT via Ergast (most reliable for results) ──────────────────────
+// ─── LAST RESULT ──────────────────────────────────────────────────────────────
 async function fetchLastResult() {
-  const eg = await safeGet(`${ERGAST}/current/last/results.json`);
-  const race = eg?.MRData?.RaceTable?.Races?.[0];
+  const eg   = await safeGet(`${ERGAST}/current/last/results.json`);
+  const race  = eg?.MRData?.RaceTable?.Races?.[0];
   if (!race) return null;
 
   const results = race.Results || [];
@@ -178,9 +166,11 @@ async function fetchLastResult() {
     driver: `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
     team:   r.Constructor.name,
     time:   r.Time?.time || r.status || '—',
-    gap:    Number(r.position) === 1 ? null : (r.Time?.time ? `+${r.Time.time}` : r.status),
+    gap:    Number(r.position) === 1 ? null : (r.Time?.time ? `+${r.Time.time}` : null),
     color:  getColor(r.Constructor.name),
     points: Number(r.points),
+    laps:   Number(r.laps),
+    status: r.status,
   }));
   const podium = top10.slice(0, 3);
 
@@ -192,21 +182,35 @@ async function fetchLastResult() {
     lap:    Number(flResult.FastestLap?.lap) || null,
   } : null;
 
-  // DNFs
-  const dnfs = results
-    .filter(r => r.status !== 'Finished' && !r.status.startsWith('+'))
+  // True retirements only (not lapped cars — they finished the race)
+  const retirements = results
+    .filter(r => r.status !== 'Finished' && !r.status.startsWith('+') && !r.status.toLowerCase().startsWith('lapped') && r.status !== 'Did not start')
     .map(r => ({
       driver: `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
       team:   r.Constructor.name,
       reason: r.status,
       lap:    Number(r.laps) || null,
+      color:  getColor(r.Constructor.name),
     }));
 
-  // Pole (from quali, approximate from grid)
+  // Lapped cars — finished but a lap or more down
+  const lapped = results
+    .filter(r => r.status.startsWith('+') || r.status.toLowerCase().startsWith('lapped'))
+    .map(r => ({
+      driver: `${r.Driver.givenName[0]}. ${r.Driver.familyName}`,
+      team:   r.Constructor.name,
+      gap:    r.status,
+      color:  getColor(r.Constructor.name),
+    }));
+
+  // DNS
+  const dns = results
+    .filter(r => r.status === 'Did not start')
+    .map(r => `${r.Driver.givenName[0]}. ${r.Driver.familyName}`);
+
   const poleDriver = results.find(r => r.grid === '1');
   const polePosition = poleDriver
-    ? `${poleDriver.Driver.givenName[0]}. ${poleDriver.Driver.familyName}`
-    : null;
+    ? `${poleDriver.Driver.givenName[0]}. ${poleDriver.Driver.familyName}` : null;
 
   return {
     raceName:     race.raceName,
@@ -215,7 +219,9 @@ async function fetchLastResult() {
     round:        Number(race.round),
     podium,
     top10,
-    dnfs,
+    retirements,  // true DNFs only
+    lapped,       // classified finishers lapped
+    dns,
     fastestLap,
     polePosition,
     sprintWinner: null,
@@ -223,13 +229,14 @@ async function fetchLastResult() {
   };
 }
 
-// ─── CALENDAR via Ergast ──────────────────────────────────────────────────────
+// ─── CALENDAR ─────────────────────────────────────────────────────────────────
 async function fetchCalendar(roundsComplete) { // eslint-disable-line no-unused-vars
   const eg    = await safeGet(`${ERGAST}/current.json`);
-  const races = eg?.MRData?.RaceTable?.Races;
+  const races  = eg?.MRData?.RaceTable?.Races;
   if (!races) return null;
+
   const winnerData = await safeGet(`${ERGAST}/current/results/1.json`);
-  const winnerMap = {};
+  const winnerMap  = {};
   (winnerData?.MRData?.RaceTable?.Races || []).forEach(r => {
     const w = r.Results?.[0];
     if (w) winnerMap[Number(r.round)] = {
@@ -239,13 +246,10 @@ async function fetchCalendar(roundsComplete) { // eslint-disable-line no-unused-
     };
   });
 
-  // Status is intentionally omitted here — Calendar component derives it
-  // from actual raceDate vs now, which is always correct regardless of API quirks.
   return races.map(r => {
-    const roundNum = Number(r.round);
-    const winner   = winnerMap[roundNum];
+    const roundNum    = Number(r.round);
+    const winner      = winnerMap[roundNum];
     const raceDateStr = `${r.date}T${r.time || '13:00:00Z'}`;
-
     return {
       round:       roundNum,
       name:        r.raceName,
@@ -254,10 +258,9 @@ async function fetchCalendar(roundsComplete) { // eslint-disable-line no-unused-
       country:     r.Circuit?.Location?.country || '',
       date:        r.date,
       raceDate:    raceDateStr,
-      winner:      winner?.name || null,
-      winnerTeam:  winner?.team || null,
+      winner:      winner?.name  || null,
+      winnerTeam:  winner?.team  || null,
       winnerColor: winner?.color || null,
-      // No status field — Calendar.js deriveStatus() computes it correctly
       isSprint:    !!(r.SprintQualifying || r.Sprint),
     };
   });
@@ -271,14 +274,20 @@ const FALLBACK = {
   lastResult: {
     raceName:'Canadian Grand Prix', circuit:'Circuit Gilles Villeneuve', round:5,
     podium:  fbLastResult.slice(0,3), top10: fbLastResult,
-    dnfs:    [{ driver:'G. Russell', team:'Mercedes', reason:'Power unit', lap:30 }],
-    fastestLap:{ driver:'K. Antonelli', time:'1:14.892', lap:68 },
+    retirements: [
+      { driver:'G. Russell', team:'Mercedes', reason:'Power unit', lap:29, color:'#00D2BE' },
+      { driver:'L. Norris',  team:'McLaren',  reason:'Retired',   lap:38, color:'#FF8000' },
+      { driver:'F. Alonso',  team:'Aston Martin', reason:'Retired', lap:23, color:'#006F62' },
+    ],
+    lapped: [],
+    dns: [],
+    fastestLap:  { driver:'K. Antonelli', time:'1:14.210', lap:68 },
     polePosition:'G. Russell', sprintWinner:'G. Russell',
   },
   paddock: { news: fbPaddock.map(p => ({ ...p, timestamp: new Date().toISOString() })) },
 };
 
-const POLL = 5 * 60 * 1000; // 5 minutes
+const POLL = 5 * 60 * 1000;
 
 export function useF1Data() {
   const [data,        setData]        = useState(FALLBACK);
@@ -290,36 +299,30 @@ export function useF1Data() {
   const refresh = useCallback(async () => {
     setStatus('loading');
     try {
-      // Fetch everything in parallel
       const [standings, nextRace, lastResult] = await Promise.all([
         fetchStandings(),
         fetchNextRace(),
         fetchLastResult(),
       ]);
-
-      // Calendar needs roundsComplete from standings
       const calendar = await fetchCalendar(standings?.roundsComplete);
 
-      const newData = {
-        standings:  standings  || FALLBACK.standings,
-        nextRace:   nextRace   || FALLBACK.nextRace,
-        lastResult: lastResult || FALLBACK.lastResult,
-        calendar:   calendar ? { races: calendar } : FALLBACK.calendar,
-        paddock:    FALLBACK.paddock, // static news (no free F1 news API exists)
-      };
-
-      setData(newData);
+      setData(prev => ({
+        standings:  standings  || prev.standings,
+        nextRace:   nextRace   || prev.nextRace,
+        lastResult: lastResult || prev.lastResult,
+        calendar:   calendar ? { races: calendar } : prev.calendar,
+        paddock:    prev.paddock,
+      }));
       setStatus('live');
       setLastUpdated(new Date());
       setSources({
         standings:  standings?.source  || 'fallback',
         nextRace:   nextRace?.source   || 'fallback',
         lastResult: lastResult?.source || 'fallback',
-        calendar:   calendar ? 'ergast' : 'fallback',
       });
     } catch (err) {
-      console.warn('[useF1Data] fetch error, keeping current data:', err.message);
-      setStatus(prev => prev === 'loading' ? 'offline' : prev);
+      console.warn('[useF1Data] fetch error:', err.message);
+      setStatus('offline');
     }
   }, []);
 

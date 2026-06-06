@@ -51,10 +51,10 @@ const Standings = ({ standings }) => {
           </div>
           <div className="standings-tabs">
             <button className={`tab-btn ${tab==='drivers'?'active':''}`} onClick={()=>setTab('drivers')}>
-              Driver's
+              Drivers'
             </button>
             <button className={`tab-btn ${tab==='constructors'?'active':''}`} onClick={()=>setTab('constructors')}>
-              Constructor's
+              Constructors'
             </button>
           </div>
         </div>

@@ -1,4 +1,4 @@
-# 🏎 Shreya's Pit Wall — 100% Free, No API Keys
+# 🏎 The Pit Wall — 100% Free, No API Keys
 
 Auto-updating F1 dashboard powered by **completely free, no-key APIs**.
 Zero cost. Zero signup. Just run it.
@@ -44,19 +44,3 @@ Visit **http://localhost:3000**
 | Live countdown | Calculated locally | Every second |
 
 ---
-
-## Deploy for free (optional)
-
-### Vercel (easiest)
-```bash
-npm install -g vercel
-vercel
-```
-
-### GitHub Pages
-```bash
-npm run build
-# Push the build/ folder to gh-pages branch
-```
-
-No backend needed — it's a pure frontend app.

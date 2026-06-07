@@ -1,17 +1,18 @@
-// All data is REAL — sourced from official F1 results after Round 5 (Canadian GP, May 24 2026)
-// Next race: Monaco GP, Round 6, June 5–7 2026
+// Fallback static data — used when live APIs are unreachable.
+// Next race: Spanish GP, Round 7, June 12–14 2026
 
 export const nextRace = {
-  name: "Monaco Grand Prix",
-  circuit: "Circuit de Monaco",
-  location: "Monte Carlo, Monaco",
-  round: 6,
+  name: "Spanish Grand Prix",
+  circuit: "Circuit de Barcelona-Catalunya",
+  location: "Barcelona, Spain",
+  round: 7,
   totalRounds: 22,
-  date: new Date("2026-06-07T13:00:00Z"), // Race start: 15:00 local (UTC+2)
-  laps: 78,
-  circuitLength: "3.337 km",
-  lapRecord: { time: "1:12.909", holder: "L. Hamilton", year: 2021 },
-  poleRecord: { time: "1:10.166", holder: "C. Leclerc", year: 2022 },
+  date: new Date("2026-06-14T13:00:00Z"),
+  raceDate: new Date("2026-06-14T13:00:00Z"),
+  laps: 66,
+  circuitLength: "4.657 km",
+  lapRecord: { time: "1:18.149", holder: "M. Verstappen", year: 2021 },
+  poleRecord: { time: "1:15.406", holder: "L. Hamilton", year: 2021 },
 };
 
 // Real standings after Round 5, Canadian GP (May 24, 2026)

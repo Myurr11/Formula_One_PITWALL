@@ -8,9 +8,8 @@ import {
   paddockIntel as fbPaddock,
 } from '../data/f1Data';
 
-const OPENF1  = 'https://api.openf1.org/v1';
-const F1API   = 'https://f1api.dev/api';
-const ERGAST  = 'https://api.jolpi.ca/ergast/f1';
+import { OPENF1_BASE as OPENF1, ERGAST_BASE as ERGAST, F1API_BASE as F1API, safeGet as sharedSafeGet } from './apiConfig';
+const safeGet = sharedSafeGet;
 
 const TEAM_COLORS = {
   mercedes:'#00D2BE', ferrari:'#E8002D', mclaren:'#FF8000',
@@ -28,14 +27,6 @@ const NAT_MAP = {
   Brazilian:'BRA',Argentine:'ARG','New Zealander':'NZL',Finnish:'FIN',
   Mexican:'MEX',American:'USA',Japanese:'JPN',Chinese:'CHN',
 };
-
-async function safeGet(url) {
-  try {
-    const r = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    if (!r.ok) return null;
-    return await r.json();
-  } catch { return null; }
-}
 
 // ─── STANDINGS ────────────────────────────────────────────────────────────────
 async function fetchStandings() {

@@ -1,0 +1,152 @@
+.weekend-header {
+  padding: 2rem 0 2.5rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 0;
+}
+
+.wh-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.wh-identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.wh-flag {
+  font-size: 3rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.wh-text { display: flex; flex-direction: column; gap: 0.3rem; }
+
+.wh-eyebrow {
+  font-size: 0.6rem;
+  letter-spacing: 3px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+}
+
+.wh-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 5rem);
+  line-height: 0.9;
+  color: #fff;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.wh-title span { color: var(--red); }
+
+.wh-loading {
+  color: rgba(255,255,255,0.2);
+  font-size: 2.5rem;
+}
+
+.wh-circuit {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin: 0.25rem 0 0;
+}
+
+/* STATS SIDE */
+.wh-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.wh-live-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(232,0,45,0.12);
+  border: 1px solid rgba(232,0,45,0.4);
+  padding: 0.5rem 1rem;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: var(--red);
+}
+
+.wh-live-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 8px var(--red);
+  animation: pulse-dot 1s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:0.4; transform:scale(0.7); }
+}
+
+.wh-countdown-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 0.75rem 1.5rem;
+}
+
+.wh-cd-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.wh-cd-label {
+  font-size: 0.55rem;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+}
+
+.wh-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 200px;
+}
+
+.wh-progress-label {
+  font-size: 0.58rem;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.25);
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.wh-progress-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.08);
+  position: relative;
+}
+
+.wh-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--red);
+  transition: width 0.6s ease;
+}
+
+@media (max-width: 700px) {
+  .wh-stats { align-items: flex-start; }
+  .wh-progress { min-width: unset; width: 100%; }
+  .wh-progress-label { text-align: left; }
+}

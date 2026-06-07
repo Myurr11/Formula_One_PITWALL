@@ -23,7 +23,6 @@ const PaddockIntel = ({ paddock, lastResult }) => {
   const podium       = lastResult?.podium || lastResult?.top10?.slice(0,3) || [];
   const top5         = lastResult?.top10?.slice(0,5) || lastResult?.podium || [];
   const retirements  = lastResult?.retirements || lastResult?.dnfs || [];
-  const lapped       = lastResult?.lapped || [];
   const raceName     = lastResult?.raceName || 'Last Race';
   const raceCircuit  = lastResult?.circuit || '';
   const raceRound    = lastResult?.round || '';

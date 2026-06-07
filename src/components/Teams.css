@@ -11,11 +11,10 @@
   border: 1px solid rgba(255,255,255,0.06);
 }
 
-/* TEAM LIST */
+/* ── SIDEBAR ── */
 .team-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
   background: rgba(8,8,8,1);
 }
 
@@ -24,7 +23,7 @@
   grid-template-columns: 4px 1fr auto;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem 1.25rem;
+  padding: 0.9rem 1.1rem;
   background: none;
   border: none;
   border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -32,46 +31,31 @@
   transition: background 0.15s;
   text-align: left;
 }
-
-.team-btn:hover {
-  background: rgba(255,255,255,0.03);
-}
-
+.team-btn:hover { background: rgba(255,255,255,0.03); }
 .team-btn.active {
   background: rgba(255,255,255,0.05);
   border-left: 2px solid var(--team-color);
 }
-
 .team-btn-color {
-  width: 4px;
-  height: 28px;
+  width: 4px; height: 28px;
   border-radius: 2px;
-  flex-shrink: 0;
   opacity: 0.5;
 }
-
-.team-btn.active .team-btn-color {
-  opacity: 1;
-}
-
+.team-btn.active .team-btn-color { opacity: 1; }
 .team-btn-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 0.9rem;
-  color: rgba(255,255,255,0.5);
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.45);
   letter-spacing: 1px;
 }
-
-.team-btn.active .team-btn-name {
-  color: #fff;
-}
-
+.team-btn.active .team-btn-name { color: #fff; }
 .team-btn-pts {
   font-size: 0.55rem;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.2);
   letter-spacing: 1px;
 }
 
-/* TEAM DETAIL */
+/* ── DETAIL PANEL ── */
 .team-detail {
   background: rgba(12,12,12,1);
   padding: 2rem;
@@ -80,6 +64,7 @@
   gap: 1.5rem;
 }
 
+/* HEADER ROW */
 .team-detail-header {
   display: flex;
   align-items: center;
@@ -87,24 +72,53 @@
 }
 
 .team-color-stripe {
-  width: 4px;
-  height: 48px;
+  width: 4px; height: 56px;
   border-radius: 2px;
   flex-shrink: 0;
 }
 
-.team-full-name {
+/* TEAM LOGO */
+.team-header-logo {
+  width: 72px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.team-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
+}
+.team-logo-fallback {
+  width: 64px; height: 40px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+}
+.team-logo-fallback span {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.6rem;
-  color: #fff;
-  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
   letter-spacing: 1px;
 }
 
+.team-header-text { flex: 1; }
+.team-full-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.5rem;
+  color: #fff;
+  margin: 0 0 0.25rem;
+  letter-spacing: 0.5px;
+}
 .team-chassis {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.35);
-  letter-spacing: 1.5px;
+  font-size: 0.62rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 1px;
   text-transform: uppercase;
   margin: 0;
 }
@@ -114,8 +128,8 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  flex-shrink: 0;
 }
-
 .tpb-pts {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 2.5rem;
@@ -123,22 +137,23 @@
   line-height: 1;
   letter-spacing: 2px;
 }
-
 .tpb-label {
-  font-size: 0.55rem;
-  color: rgba(255,255,255,0.25);
+  font-size: 0.52rem;
+  color: rgba(255,255,255,0.2);
   letter-spacing: 2px;
 }
 
+/* DESC */
 .team-desc {
-  font-size: 0.82rem;
-  color: rgba(255,255,255,0.45);
-  line-height: 1.7;
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.42);
+  line-height: 1.75;
   margin: 0;
   border-left: 2px solid rgba(255,255,255,0.07);
   padding-left: 1rem;
 }
 
+/* STATS ROW */
 .team-stats-row {
   display: flex;
   gap: 2rem;
@@ -147,20 +162,13 @@
   border: 1px solid rgba(255,255,255,0.05);
   flex-wrap: wrap;
 }
-
-.team-stat {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
+.team-stat { display: flex; flex-direction: column; gap: 0.25rem; }
 .ts-label {
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   letter-spacing: 2px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.22);
   text-transform: uppercase;
 }
-
 .ts-value {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 1rem;
@@ -168,70 +176,113 @@
   letter-spacing: 0.5px;
 }
 
-/* DRIVERS */
-.team-drivers {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
+/* ── DRIVER CARDS ── */
+.team-drivers { display: flex; flex-direction: column; gap: 0.75rem; }
 .td-label {
-  font-size: 0.55rem;
+  font-size: 0.52rem;
   letter-spacing: 3px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(255,255,255,0.22);
   text-transform: uppercase;
 }
-
 .td-list {
-  display: flex;
-  gap: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
 }
 
 .td-card {
-  flex: 1;
-  padding: 1rem 1.25rem;
+  position: relative;
   background: rgba(255,255,255,0.02);
-  border-top: 2px solid var(--team-color, #fff);
+  border-top: 2px solid var(--tc, #888);
   display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
+  flex-direction: row;
+  align-items: flex-end;
+  overflow: hidden;
+  min-height: 140px;
 }
 
+/* DRIVER PHOTO */
+.td-img-wrap {
+  position: relative;
+  width: 110px;
+  height: 140px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.td-driver-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+  /* Slight desaturate for dark theme consistency */
+  filter: saturate(0.85) contrast(1.05);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+.td-card:hover .td-driver-img {
+  transform: scale(1.04);
+  filter: saturate(1) contrast(1.05);
+}
+.td-driver-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.8rem;
+  color: rgba(255,255,255,0.12);
+  letter-spacing: 2px;
+}
+
+/* DRIVER META */
+.td-driver-meta {
+  flex: 1;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.2rem;
+  background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%);
+}
 .td-num {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 0.75rem;
-  color: rgba(255,255,255,0.25);
   letter-spacing: 1px;
 }
-
 .td-name {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   color: #fff;
   letter-spacing: 1px;
+  line-height: 1.1;
+}
+.td-pts {
+  font-size: 0.6rem;
+  color: rgba(255,255,255,0.3);
 }
 
-@media (max-width: 768px) {
-  .teams-layout {
-    grid-template-columns: 1fr;
-  }
+/* Responsive */
+@media (max-width: 900px) {
+  .teams-layout { grid-template-columns: 1fr; }
   .team-list {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     border-bottom: 1px solid rgba(255,255,255,0.06);
   }
   .team-btn {
     grid-template-columns: 1fr;
-    padding: 0.75rem;
+    padding: 0.65rem 0.5rem;
     text-align: center;
     justify-items: center;
   }
   .team-btn-color { display: none; }
-  .td-list { flex-direction: column; }
+  .team-btn-pts { display: none; }
 }
 
-.td-pts {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.35);
-  margin-top: 0.15rem;
+@media (max-width: 600px) {
+  .team-list { grid-template-columns: repeat(3, 1fr); }
+  .td-list { grid-template-columns: 1fr; }
+  .td-img-wrap { width: 90px; height: 120px; }
 }

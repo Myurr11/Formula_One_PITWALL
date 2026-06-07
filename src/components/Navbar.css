@@ -148,3 +148,32 @@
   .nav-links.open { display: flex; }
   .logo-edition { display: none; }
 }
+
+.nav-link-weekend {
+  position: relative;
+  color: rgba(255,255,255,0.6) !important;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 0.3rem 0.75rem !important;
+}
+
+.nav-link-weekend.active,
+.nav-link-weekend:hover {
+  border-color: var(--red);
+  color: var(--red) !important;
+}
+
+.weekend-nav-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-left: 0.4rem;
+  vertical-align: middle;
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:0.3;transform:scale(0.6)}
+}

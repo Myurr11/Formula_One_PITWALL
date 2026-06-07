@@ -22,8 +22,7 @@ const WeekendHeader = ({ weekend, sessions, status }) => {
   const doneCount     = sessions.filter(s => s.status === 'completed').length;
   const totalSessions = sessions.length;
 
-  const raceSession = sessions.find(s => s.type === 'Race');
-  const raceDate    = raceSession ? new Date(raceSession.dateStart) : null;
+  const raceDate    = weekend?.raceDate instanceof Date ? weekend.raceDate : (weekend?.raceDate ? new Date(weekend.raceDate) : null);
   const daysToRace  = raceDate
     ? Math.ceil((raceDate - now) / 86400000)
     : null;
@@ -55,7 +54,17 @@ const WeekendHeader = ({ weekend, sessions, status }) => {
               <span className="wh-live-dot" />
               <span>{liveSession.config.short} LIVE NOW</span>
             </div>
-          ) : daysToRace !== null && daysToRace > 0 ? (
+          ) : raceDate && raceDate <= now ? (
+            <div className="wh-countdown-pill">
+              <span className="wh-cd-num" style={{fontSize:'1.2rem', letterSpacing:'1px'}}>RACE DAY</span>
+              <span className="wh-cd-label">{raceDate.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})} LOCAL</span>
+            </div>
+          ) : daysToRace === 1 ? (
+            <div className="wh-countdown-pill">
+              <span className="wh-cd-num">TOMORROW</span>
+              <span className="wh-cd-label">RACE DAY</span>
+            </div>
+          ) : daysToRace !== null && daysToRace > 1 ? (
             <div className="wh-countdown-pill">
               <span className="wh-cd-num">{daysToRace}</span>
               <span className="wh-cd-label">DAYS TO RACE</span>

@@ -124,7 +124,12 @@ const SessionResult = ({ session, result }) => {
       {!isUpcoming && !result && (
         <div className="sr-upcoming">
           <span className="sr-upcoming-icon">📡</span>
-          <p>{isLive ? 'Waiting for live timing data…' : 'Session data not available yet.'}</p>
+          {isLive
+            ? <p>Waiting for live timing data from OpenF1…</p>
+            : session.isStatic
+              ? <p>Session schedule from Ergast.<br/>Live lap-by-lap data will appear here once OpenF1 picks up the session.</p>
+              : <p>Fetching session data from OpenF1…</p>
+          }
         </div>
       )}
 
@@ -154,7 +159,7 @@ const SessionResult = ({ session, result }) => {
               <span className="sr-col-driver">DRIVER</span>
               <span className="sr-col-team">TEAM</span>
               <span className="sr-col-best">BEST LAP</span>
-              {!isPractice && <span className="sr-col-gap">GAP</span>}
+              <span className="sr-col-gap">GAP</span>
               {(isPractice || isRaceType) && <span className="sr-col-tyre">TYRE</span>}
               {isRaceType && <span className="sr-col-pits">PITS</span>}
             </div>
@@ -196,6 +201,16 @@ const SessionResult = ({ session, result }) => {
                   {!isPractice && (
                     <span className="sr-col-gap sr-gap">
                       {isLeader ? 'LEADER' : formatGap(driver.gap)}
+                    </span>
+                  )}
+                  {isPractice && (
+                    <span className="sr-col-gap sr-gap">
+                      {driver.position === 1
+                        ? 'LEADER'
+                        : driver.gap != null
+                          ? `+${Number(driver.gap).toFixed(3)}s`
+                          : '—'
+                      }
                     </span>
                   )}
 

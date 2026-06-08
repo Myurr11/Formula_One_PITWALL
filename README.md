@@ -9,10 +9,10 @@ Zero cost. Zero signup. Just run it.
 
 The React app calls these free public APIs directly from your browser:
 
-| API | What it provides | Cost |
-|---|---|---|
-| **api.openf1.org** | Next race, session times, live timing | FREE, no key |
-| **f1api.dev** | Championship standings | FREE, no key |
+| API                     | What it provides                           | Cost         |
+| ----------------------- | ------------------------------------------ | ------------ |
+| **api.openf1.org**      | Next race, session times, live timing      | FREE, no key |
+| **f1api.dev**           | Championship standings                     | FREE, no key |
 | **api.jolpi.ca/ergast** | Race results, calendar, fallback standings | FREE, no key |
 
 Data refreshes every **5 minutes automatically**.
@@ -35,12 +35,12 @@ Visit **http://localhost:3000**
 
 ## What updates automatically
 
-| Data | Source | Updates when |
-|---|---|---|
+| Data                   | Source             | Updates when     |
+| ---------------------- | ------------------ | ---------------- |
 | Championship standings | f1api.dev → Ergast | After every race |
-| Race results / podium | Ergast | After every race |
-| Season calendar | Ergast | Start of season |
-| Next race + sessions | OpenF1 | Real-time |
-| Live countdown | Calculated locally | Every second |
+| Race results / podium  | Ergast             | After every race |
+| Season calendar        | Ergast             | Start of season  |
+| Next race + sessions   | OpenF1             | Real-time        |
+| Live countdown         | Calculated locally | Every second     |
 
 ---

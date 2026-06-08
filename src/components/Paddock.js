@@ -4,6 +4,9 @@ import './Paddock.css';
 const tagColors = {
   hot:'#E8002D', news:'#0093CC', debut:'#D4AF37',
   official:'#00D2BE', preview:'#FF8000', technical:'#9B59B6',
+  championship:'#00D2BE', constructor:'#FF8000', 'race result':'#E8002D',
+  'race control':'#E8002D', incidents:'#ffcc00', 'next race':'#FF8000',
+  calendar:'#00D2BE', 'fastest lap':'#9B59B6',
 };
 
 const timeAgo = (iso) => {
@@ -18,17 +21,21 @@ const timeAgo = (iso) => {
   return 'just now';
 };
 
+const getTagColor = (tag, type) => {
+  return tagColors[tag?.toLowerCase()] || tagColors[type?.toLowerCase()] || '#888';
+};
+
 const PaddockIntel = ({ paddock, lastResult }) => {
-  const news         = paddock?.news || [];
-  const podium       = lastResult?.podium || lastResult?.top10?.slice(0,3) || [];
-  const top5         = lastResult?.top10?.slice(0,5) || lastResult?.podium || [];
-  const retirements  = lastResult?.retirements || lastResult?.dnfs || [];
-  const raceName     = lastResult?.raceName || 'Last Race';
-  const raceCircuit  = lastResult?.circuit || '';
-  const raceRound    = lastResult?.round || '';
-  const fastest      = lastResult?.fastestLap;
-  const sprint       = lastResult?.sprintWinner;
-  const pole         = lastResult?.polePosition;
+  const news        = paddock?.news || [];
+  const podium      = lastResult?.podium || lastResult?.top10?.slice(0,3) || [];
+  const top5        = lastResult?.top10?.slice(0,5) || lastResult?.podium || [];
+  const retirements = lastResult?.retirements || lastResult?.dnfs || [];
+  const raceName    = lastResult?.raceName || 'Last Race';
+  const raceCircuit = lastResult?.circuit || '';
+  const raceRound   = lastResult?.round || '';
+  const fastest     = lastResult?.fastestLap;
+  const sprint      = lastResult?.sprintWinner;
+  const pole        = lastResult?.polePosition;
 
   const p1 = podium.find(p => p.pos === 1) || podium[0];
   const p2 = podium.find(p => p.pos === 2) || podium[1];
@@ -43,31 +50,41 @@ const PaddockIntel = ({ paddock, lastResult }) => {
           <div className="intel-feed">
             <div className="section-header" style={{ marginBottom:'2rem', borderBottom:'1px solid rgba(255,255,255,0.07)', paddingBottom:'1.5rem' }}>
               <h2 className="section-title">Paddock <span>Intel</span></h2>
-              <span className="section-meta">AUTO-UPDATED · FREE API</span>
+              <span className="section-meta">LIVE · RACE DATA</span>
             </div>
+
             <div className="intel-list">
-              {news.length === 0 && (
-                <div className="intel-card">
-                  <div className="intel-card-top">
-                    <span className="intel-type" style={{color:'#888',borderColor:'#888'}}>LOADING</span>
-                  </div>
-                  <h3 className="intel-headline">Fetching latest paddock news…</h3>
-                  <p className="intel-body">Pulling from live F1 data sources.</p>
-                </div>
-              )}
-              {news.map((item, i) => (
-                <div className="intel-card" key={i}>
-                  <div className="intel-card-top">
-                    <span className="intel-type" style={{ color:tagColors[item.tag]||'#fff', borderColor:tagColors[item.tag]||'#fff' }}>
-                      {item.type}
-                    </span>
-                    {item.timestamp && <span className="intel-time">{timeAgo(item.timestamp)}</span>}
-                  </div>
-                  <h3 className="intel-headline">{item.headline}</h3>
-                  <p className="intel-body">{item.body}</p>
+              {/* Loading skeletons */}
+              {news.length === 0 && [1,2,3].map(i => (
+                <div className="intel-card intel-skeleton" key={i}>
+                  <div className="skeleton-tag" />
+                  <div className="skeleton-headline" />
+                  <div className="skeleton-body" />
                 </div>
               ))}
+
+              {news.map((item, i) => {
+                const color = getTagColor(item.tag, item.type);
+                return (
+                  <div className="intel-card" key={i}>
+                    <div className="intel-card-top">
+                      <span className="intel-type" style={{ color, borderColor: color }}>
+                        {item.type}
+                      </span>
+                      {item.timestamp && (
+                        <span className="intel-time">{timeAgo(item.timestamp)}</span>
+                      )}
+                    </div>
+                    <h3 className="intel-headline">{item.headline}</h3>
+                    <p className="intel-body">{item.body}</p>
+                  </div>
+                );
+              })}
             </div>
+
+            <p className="intel-source-note">
+              Auto-generated from Ergast race results &amp; OpenF1 race control · Refreshes every 5 min
+            </p>
           </div>
 
           {/* ── Last Race Panel ── */}
@@ -120,7 +137,7 @@ const PaddockIntel = ({ paddock, lastResult }) => {
               ))}
             </div>
 
-            {/* ── DNF Table — retirements only, clean layout ── */}
+            {/* DNF Table */}
             {retirements.length > 0 && (
               <div className="dnf-section">
                 <div className="dnf-section-header">

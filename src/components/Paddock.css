@@ -417,3 +417,42 @@
 
 /* remove old dnf-row style conflicts */
 .dnf-row { display: none; }
+
+/* ── Skeleton loading ── */
+.intel-skeleton {
+  pointer-events: none;
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0%,100% { opacity: 0.4; }
+  50%      { opacity: 0.15; }
+}
+
+.skeleton-tag {
+  width: 80px; height: 14px;
+  background: rgba(255,255,255,0.1);
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-headline {
+  width: 85%; height: 18px;
+  background: rgba(255,255,255,0.08);
+  margin-bottom: 0.5rem;
+}
+
+.skeleton-body {
+  width: 95%; height: 40px;
+  background: rgba(255,255,255,0.05);
+}
+
+/* ── Source note ── */
+.intel-source-note {
+  font-size: 0.55rem;
+  letter-spacing: 0.5px;
+  color: rgba(255,255,255,0.15);
+  padding: 1rem 0 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  margin-top: 0.5rem;
+  line-height: 1.6;
+}

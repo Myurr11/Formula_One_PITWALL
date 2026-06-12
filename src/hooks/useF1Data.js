@@ -208,117 +208,179 @@ async function fetchCalendar() {
   });
 }
 
-// ─── PADDOCK INTEL — built from real live data, no static stories ─────────────
+// ─── PADDOCK INTEL — real F1 news from RSS feeds (primary) + race data ────────
+const RSS2JSON = 'https://api.rss2json.com/v1/api.json';
+
+// Free F1 RSS feeds — no API key needed via rss2json.com
+const F1_RSS_FEEDS = [
+  'https://www.autosport.com/rss/f1/news/',
+  'https://www.racefans.net/feed/',
+  'https://www.motorsport.com/rss/f1/news/',
+  'https://racer.com/feed/?cat=7',
+];
+
+const TAG_MAP = {
+  penalty: 'official', penalt: 'official', steward: 'official', fia: 'official',
+  win: 'hot', champion: 'hot', victory: 'hot', podium: 'hot',
+  crash: 'news', accident: 'news', retire: 'news', dnf: 'news',
+  deal: 'news', contract: 'news', sign: 'news',
+  technical: 'technical', upgrade: 'technical', power: 'technical',
+  preview: 'preview', qualifying: 'preview',
+  default: 'news',
+};
+
+function classifyTag(title = '', desc = '') {
+  const text = (title + ' ' + desc).toLowerCase();
+  for (const [keyword, tag] of Object.entries(TAG_MAP)) {
+    if (text.includes(keyword)) return tag;
+  }
+  return 'news';
+}
+
+function classifyType(title = '') {
+  const t = title.toLowerCase();
+  if (t.includes('penalty') || t.includes('steward') || t.includes('fia')) return 'FIA / OFFICIAL';
+  if (t.includes('win') || t.includes('victory') || t.includes('podium')) return 'RACE RESULT';
+  if (t.includes('champion')) return 'CHAMPIONSHIP';
+  if (t.includes('technical') || t.includes('upgrade') || t.includes('car') || t.includes('engine')) return 'TECHNICAL';
+  if (t.includes('contract') || t.includes('sign') || t.includes('deal') || t.includes('seat')) return 'DRIVER NEWS';
+  if (t.includes('qualifying') || t.includes('grid') || t.includes('pole')) return 'QUALIFYING';
+  if (t.includes('preview') || t.includes('grand prix') || t.includes('gp')) return 'PADDOCK';
+  return 'F1 NEWS';
+}
+
+async function fetchRSSNews() {
+  const allItems = [];
+
+  // Try each feed, collect items
+  await Promise.all(
+    F1_RSS_FEEDS.map(async (feedUrl) => {
+      try {
+        const url = `${RSS2JSON}?rss_url=${encodeURIComponent(feedUrl)}&count=5`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.status !== 'ok' || !data.items?.length) return;
+        data.items.forEach(item => {
+          allItems.push({
+            title:     item.title || '',
+            body:      (item.description || item.content || '')
+                         .replace(/<[^>]+>/g, '') // strip HTML
+                         .replace(/\s+/g, ' ')
+                         .trim()
+                         .slice(0, 180) + '…',
+            link:      item.link || '',
+            pubDate:   item.pubDate || new Date().toISOString(),
+            source:    data.feed?.title || feedUrl,
+          });
+        });
+      } catch(e) { /* silently skip failed feeds */ }
+    })
+  );
+
+  if (!allItems.length) return null;
+
+  // Sort by date, newest first, deduplicate by title similarity
+  allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+  const seen = new Set();
+  const unique = allItems.filter(item => {
+    const key = item.title.toLowerCase().slice(0, 40);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  // Convert to our news format
+  return unique.slice(0, 8).map(item => ({
+    type:      classifyType(item.title),
+    tag:       classifyTag(item.title, item.body),
+    headline:  item.title,
+    body:      item.body,
+    source:    item.source,
+    link:      item.link,
+    timestamp: new Date(item.pubDate).toISOString(),
+  }));
+}
+
 async function fetchPaddockIntel(lastResult) {
-  const news = [];
+  // ── PRIMARY: real RSS news from F1 outlets ────────────────────────────────
+  const rssNews = await fetchRSSNews();
 
-  // Story 1: last race winner
-  if (lastResult?.raceName && lastResult?.podium?.[0]) {
-    const p1 = lastResult.podium[0];
-    const p2 = lastResult.podium[1];
-    const p3 = lastResult.podium[2];
-    news.push({
-      type: 'RACE RESULT',
-      tag:  'hot',
-      headline: `${p1?.driver?.split(' ').pop()} wins the ${lastResult.raceName}`,
-      body: `${p1?.driver} (${p1?.team}) takes victory at the ${lastResult.raceName}.`
-        + (p2 ? ` ${p2.driver} finishes P2` : '')
-        + (p3 ? `, ${p3.driver} completes the podium.` : '.'),
-      timestamp: new Date(`${lastResult.date}T16:00:00Z`).toISOString(),
-    });
-  }
+  // ── SUPPLEMENTAL: data-derived stories (only if RSS fails or as extras) ──
+  const dataNews = [];
 
-  // Story 2: fastest lap
-  if (lastResult?.fastestLap) {
-    const fl = lastResult.fastestLap;
-    news.push({
-      type: 'FASTEST LAP',
-      tag:  'news',
-      headline: `${fl.driver?.split(' ').pop()} sets fastest lap at ${lastResult.raceName}`,
-      body: `${fl.driver} recorded the fastest lap of the race with a ${fl.time} on lap ${fl.lap}.`,
-      timestamp: new Date(`${lastResult.date}T16:30:00Z`).toISOString(),
-    });
-  }
-
-  // Story 3: retirements
-  if (lastResult?.retirements?.length > 0) {
-    const dnfs = lastResult.retirements;
-    news.push({
-      type: 'INCIDENTS',
-      tag:  'news',
-      headline: `${dnfs.length} retirement${dnfs.length>1?'s':''} at the ${lastResult?.raceName||'last race'}`,
-      body: dnfs.map(d=>`${d.driver} (${d.reason}${d.lap?', L'+d.lap:''})`).join(' · '),
-      timestamp: new Date(`${lastResult.date}T17:00:00Z`).toISOString(),
-    });
-  }
-
-  // Story 4: standings leader after last race
+  // Championship leader story
   const standings = await safeGet(`${ERGAST}/current/driverStandings.json`);
   const sl = standings?.MRData?.StandingsTable?.StandingsLists?.[0];
   if (sl?.DriverStandings?.length >= 2) {
-    const p1 = sl.DriverStandings[0];
-    const p2 = sl.DriverStandings[1];
+    const p1  = sl.DriverStandings[0];
+    const p2  = sl.DriverStandings[1];
     const gap = Number(p1.points) - Number(p2.points);
-    news.push({
-      type: 'CHAMPIONSHIP',
-      tag:  'official',
-      headline: `${p1.Driver.familyName} leads championship by ${gap} point${gap!==1?'s':''} after R${sl.round}`,
-      body: `${fmt(p1)} (${p1.Constructors?.[0]?.name}) tops the standings with ${p1.points} pts. `
-        + `${fmt(p2)} is ${gap} points behind in P2 with ${p2.points} pts.`,
+    dataNews.push({
+      type:      'CHAMPIONSHIP',
+      tag:       'official',
+      headline:  `${p1.Driver.familyName} leads by ${gap} pts after R${sl.round}`,
+      body:      `${fmt(p1)} (${p1.Constructors?.[0]?.name}) leads with ${p1.points} pts. ${fmt(p2)} is ${gap} points behind in P2.`,
       timestamp: new Date().toISOString(),
+      source:    'Ergast',
     });
   }
 
-  // Story 5: next race preview from Ergast
-  const nextData = await safeGet(`${ERGAST}/current/next.json`);
-  const nextRace = nextData?.MRData?.RaceTable?.Races?.[0];
-  if (nextRace) {
-    const raceDate = new Date(`${nextRace.date}T${nextRace.time||'14:00:00Z'}`);
-    const daysAway = Math.ceil((raceDate - new Date()) / 86400000);
-    news.push({
-      type: 'NEXT RACE',
-      tag:  'preview',
-      headline: `Round ${nextRace.round}: ${nextRace.raceName} in ${daysAway > 0 ? daysAway+' days' : 'progress'}`,
-      body: `${nextRace.raceName} takes place at ${nextRace.Circuit?.circuitName||''} in ${nextRace.Circuit?.Location?.locality||''}, ${nextRace.Circuit?.Location?.country||''}.`,
-      timestamp: new Date().toISOString(),
+  // Last race result
+  if (lastResult?.podium?.[0]) {
+    const p1 = lastResult.podium[0];
+    const p2 = lastResult.podium[1];
+    const p3 = lastResult.podium[2];
+    dataNews.push({
+      type:      'RACE RESULT',
+      tag:       'hot',
+      headline:  `${p1.driver?.split(' ').pop()} wins the ${lastResult.raceName}`,
+      body:      `${p1.driver} (${p1.team}) takes victory.${p2 ? ` P2: ${p2.driver}.` : ''}${p3 ? ` P3: ${p3.driver}.` : ''}`,
+      timestamp: new Date(`${lastResult.date}T16:00:00Z`).toISOString(),
+      source:    'Ergast',
     });
   }
 
-  // Story 6: live race control messages from OpenF1 (if race weekend active)
+  // OpenF1 race control (live weekend only — bonus)
   try {
-    const year = new Date().getFullYear();
+    const year     = new Date().getFullYear();
     const meetings = await safeGet(`${OPENF1}/meetings?year=${year}`);
     if (meetings?.length) {
-      const now = new Date();
+      const now           = new Date();
       const activeMeeting = meetings.find(m => {
         const start = new Date(m.date_start);
-        const end   = new Date(start.getTime() + 5 * 24 * 3600000);
-        return now >= start && now <= end;
+        return now >= start && now <= new Date(start.getTime() + 5 * 24 * 3600000);
       });
       if (activeMeeting) {
         const sessions = await safeGet(`${OPENF1}/sessions?meeting_key=${activeMeeting.meeting_key}&year=${year}`);
-        const recentSession = sessions?.filter(s => new Date(s.date_start) <= now)
-                                       .sort((a,b) => new Date(b.date_start)-new Date(a.date_start))[0];
-        if (recentSession) {
-          const raceControl = await safeGet(`${OPENF1}/race_control?session_key=${recentSession.session_key}`);
-          const interesting = raceControl?.filter(m =>
-            ['RED FLAG','SAFETY CAR','VIRTUAL SAFETY CAR','DRS','PENALTY','BLACK AND WHITE','STOP AND GO'].some(k => m.message?.toUpperCase().includes(k))
-          ).slice(-3);
-          if (interesting?.length) {
-            news.unshift({
-              type: 'RACE CONTROL',
-              tag:  'hot',
-              headline: `Race control: ${interesting[interesting.length-1].message}`,
-              body: interesting.map(m => `[${m.message}]`).join(' · '),
-              timestamp: new Date(interesting[interesting.length-1].date || now).toISOString(),
+        const recent   = sessions?.filter(s => new Date(s.date_start) <= now)
+                                   .sort((a,b) => new Date(b.date_start) - new Date(a.date_start))[0];
+        if (recent) {
+          const rc = await safeGet(`${OPENF1}/race_control?session_key=${recent.session_key}`);
+          const notable = rc?.filter(m =>
+            ['RED FLAG','SAFETY CAR','VIRTUAL SAFETY CAR','DRS','PENALTY','BLACK AND WHITE'].some(k => m.message?.toUpperCase().includes(k))
+          ).slice(-2);
+          if (notable?.length) {
+            dataNews.unshift({
+              type:      'RACE CONTROL 🔴',
+              tag:       'hot',
+              headline:  `${activeMeeting.meeting_name}: ${notable[notable.length-1].message}`,
+              body:      notable.map(m => m.message).join(' · '),
+              timestamp: new Date(notable[notable.length-1].date || now).toISOString(),
+              source:    'OpenF1',
             });
           }
         }
       }
     }
-  } catch(e) { /* OpenF1 race control is bonus, don't fail on it */ }
+  } catch(e) { /* silent */ }
 
-  return { news: news.slice(0,6) };
+  // Merge: RSS news first, then any data stories not already covered
+  const combined = rssNews
+    ? [...rssNews, ...dataNews]        // RSS worked — lead with real news
+    : [...dataNews];                    // RSS failed — fall back to data stories
+
+  return { news: combined.slice(0, 8) };
 }
 
 // ─── MAIN HOOK ────────────────────────────────────────────────────────────────

@@ -75,15 +75,23 @@ const PaddockIntel = ({ paddock, lastResult }) => {
                         <span className="intel-time">{timeAgo(item.timestamp)}</span>
                       )}
                     </div>
-                    <h3 className="intel-headline">{item.headline}</h3>
+                    <h3 className="intel-headline">
+                      {item.link
+                        ? <a href={item.link} target="_blank" rel="noopener noreferrer" className="intel-link">{item.headline}</a>
+                        : item.headline
+                      }
+                    </h3>
                     <p className="intel-body">{item.body}</p>
+                    {item.source && (
+                      <span className="intel-source">{item.source}</span>
+                    )}
                   </div>
                 );
               })}
             </div>
 
             <p className="intel-source-note">
-              Auto-generated from Ergast race results &amp; OpenF1 race control · Refreshes every 5 min
+              Live news from Autosport · RaceFans · Motorsport.com RSS feeds · Updates every 5 min
             </p>
           </div>
 
